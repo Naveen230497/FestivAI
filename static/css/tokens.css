@@ -1,0 +1,156 @@
+/**
+ * FestivAI Design Tokens (tokens.css)
+ * Premium Editorial UI System with WCAG 2.2 AA Contrast Compliance
+ */
+
+:root {
+  /* Brand Palette */
+  --color-ivory: #FFF9F2;
+  --color-navy: #171A35;
+  --color-violet: #6C3BFF;
+  --color-violet-hover: #5828E8;
+  --color-violet-subtle: #F0EBFF;
+  --color-coral: #FF7043;
+  --color-coral-hover: #F4511E;
+  --color-coral-subtle: #FFECE6;
+  --color-lavender: #F0EBFF;
+  --color-white: #FFFFFF;
+  --color-border: #EAE5F0;
+  --color-border-hover: #D5CCE0;
+  --color-surface: #FFFFFF;
+  --color-surface-card: #FFFFFF;
+  --color-surface-muted: #F7F3EE;
+
+  /* WCAG AA Compliant Text Contrast */
+  --color-text-primary: #171A35;
+  --color-text-secondary: #5F5E73; /* Meets 4.5:1 on ivory & white */
+  --color-text-muted: #5F5E73;
+  --color-text-on-violet: #FFFFFF;
+  --color-text-on-coral: #171A35; /* Navy on coral passes contrast; white fails */
+  --color-text-on-dark: #F7F5FC;
+
+  /* Status Colors */
+  --color-tight: #D32F2F;
+  --color-tight-bg: #FFEBEE;
+  --color-moderate: #ED6C02;
+  --color-moderate-bg: #FFF3E0;
+  --color-comfortable: #2E7D32;
+  --color-comfortable-bg: #E8F5E9;
+  --color-warning-border: #FFB74D;
+  --color-warning-bg: #FFF8E1;
+  --color-warning-text: #E65100;
+
+  /* Toast Notification Colors */
+  --color-toast-bg: #171A35;
+  --color-toast-text: #FFFFFF;
+  --color-toast-border: #2D325E;
+
+  /* Radii Scale (14px - 22px) */
+  --radius-sm: 14px;
+  --radius-md: 18px;
+  --radius-lg: 22px;
+  --radius-full: 9999px;
+
+  /* Spacing Scale (8px Grid) */
+  --space-0-5: 4px;
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-6: 48px;
+  --space-8: 64px;
+  --space-10: 80px;
+
+  /* Typography Scale */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --text-xs: 0.8125rem;  /* 13px */
+  --text-sm: 0.9375rem;  /* 15px */
+  --text-base: 1.0625rem;/* 17px */
+  --text-lg: 1.375rem;   /* 22px */
+  --text-xl: 1.875rem;   /* 30px */
+  --text-2xl: 2.375rem;  /* 38px */
+  --text-hero: 3.25rem;  /* 52px */
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 800;
+
+  --line-height-tight: 1.15;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.7;
+
+  /* Elevation Shadows */
+  --shadow-sm: 0 2px 8px rgba(23, 26, 53, 0.04);
+  --shadow-md: 0 8px 24px rgba(23, 26, 53, 0.07);
+  --shadow-lg: 0 16px 40px rgba(23, 26, 53, 0.1);
+  --shadow-focus: 0 0 0 3px var(--color-violet);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+
+  /* Content Widths */
+  --max-width-content: 1180px;
+  --max-width-form: 760px;
+}
+
+/* Dark Theme via Media Query */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-ivory: #0E1020;
+    --color-navy: #F7F5FC;
+    --color-surface: #171A35;
+    --color-surface-card: #1D2142;
+    --color-surface-muted: #13162C;
+    --color-border: #2D325E;
+    --color-border-hover: #40467D;
+
+    --color-text-primary: #F7F5FC;
+    --color-text-secondary: #B4B1CD;
+    --color-text-muted: #9A97B8;
+    --color-lavender: #231B45;
+    --color-violet-subtle: #251E4E;
+    --color-coral-subtle: #381E1C;
+
+    --color-tight-bg: #381216;
+    --color-tight: #FF8A80;
+    --color-moderate-bg: #38240D;
+    --color-moderate: #FFB74D;
+    --color-comfortable-bg: #123018;
+    --color-comfortable: #81C784;
+
+    --color-warning-border: #7B4B1E;
+    --color-warning-bg: #2C1E10;
+    --color-warning-text: #FFB74D;
+
+    --color-toast-bg: #1D2142;
+    --color-toast-text: #F7F5FC;
+    --color-toast-border: #3D4478;
+
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Forced Colors (High Contrast Mode) */
+@media (forced-colors: active) {
+  :root {
+    --shadow-focus: 0 0 0 3px Highlight;
+  }
+  .btn-primary, .badge, .tile-card {
+    border: 1px solid ButtonText;
+  }
+}

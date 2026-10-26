@@ -1,0 +1,8 @@
+/**
+ * FestivAI Master Stylesheet
+ * Aggregates tokens, base foundations, UI components, and screen views.
+ */
+@import url('/css/tokens.css');
+@import url('/css/base.css');
+@import url('/css/components.css');
+@import url('/css/views.css');
