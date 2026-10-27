@@ -103,23 +103,31 @@ Browser form -> POST /api/plan -> validation -> budget + timeline + vendors + id
 
 ## Architecture
 
-```
-Browser (static HTML/CSS/JS)
-    |  POST /api/plan (JSON)
-    v
-server.py   static allow-list, security headers, HTTP glue
-    v
-api.py      rate limit -> size/type checks -> JSON parse
-    v
-models.py   strict validation (PlanRequest.from_payload)
-    v
-planner.py  build_plan(): orchestration + warnings
-    |-- budget.py     allocation + feasibility (deterministic)
-    |-- timeline.py   milestones, compression, vendor book-by dates
-    |-- ideas.py      ideas: LLM first, rule-based fallback
-    |       \-- llm.py   optional LLM call (Gemini / Groq / Claude via stdlib urllib)
-    v
-Plan -> JSON -> UI
+```mermaid
+flowchart TD
+    U([User in browser<br/>static HTML, CSS, JS]) -->|POST /api/plan| S
+
+    subgraph Backend["Python backend - standard library only"]
+        S[server.py<br/>static allow-list, security headers] --> A[api.py<br/>rate limit, size and type checks]
+        A --> M[models.py<br/>strict input validation]
+        M --> P[planner.py<br/>build_plan orchestration and warnings]
+        P --> B[budget.py<br/>allocation and feasibility]
+        P --> T[timeline.py<br/>milestones, compression, book-by dates]
+        P --> I[ideas.py<br/>personalised ideas]
+        I -->|API key set| L[llm.py<br/>Gemini, Groq or Claude via urllib]
+        I -->|no key or failure| F[Rule-based fallback ideas]
+        K[(knowledge.py<br/>budget splits, milestones, checklists)] -.-> B
+        K -.-> T
+        K -.-> F
+    end
+
+    P --> R[Plan JSON]
+    R --> O([UI shows budget, timeline,<br/>vendors, ideas and warnings])
+
+    classDef core fill:#F0EBFF,stroke:#6C3BFF,color:#171A35
+    classDef ai fill:#FFE9E1,stroke:#FF7043,color:#171A35
+    class M,B,T core
+    class I,L,F ai
 ```
 
 | Module | Responsibility |
