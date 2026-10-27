@@ -101,6 +101,50 @@ The server sends `Content-Security-Policy: default-src 'self'; frame-ancestors '
 Browser form -> POST /api/plan -> validation -> budget + timeline + vendors + ideas -> JSON -> accessible UI
 ```
 
+## Architecture
+
+```
+Browser (static HTML/CSS/JS)
+    |  POST /api/plan (JSON)
+    v
+server.py   static allow-list, security headers, HTTP glue
+    v
+api.py      rate limit -> size/type checks -> JSON parse
+    v
+models.py   strict validation (PlanRequest.from_payload)
+    v
+planner.py  build_plan(): orchestration + warnings
+    |-- budget.py     allocation + feasibility (deterministic)
+    |-- timeline.py   milestones, compression, vendor book-by dates
+    |-- ideas.py      ideas: LLM first, rule-based fallback
+    |       \-- llm.py   optional LLM call (Gemini / Groq / Claude via stdlib urllib)
+    v
+Plan -> JSON -> UI
+```
+
+| Module | Responsibility |
+|---|---|
+| `knowledge.py` | All domain data: budget splits, milestones, checklists, fallback ideas |
+| `models.py` | Input validation and response dataclasses |
+| `budget.py`, `timeline.py` | Pure, deterministic calculations |
+| `ideas.py`, `llm.py` | Personalised ideas with graceful fallback |
+| `planner.py` | Combines the pieces and raises context-aware warnings |
+| `api.py` | Transport-independent request handling and rate limiting |
+| `server.py` | Thin HTTP layer and static file serving |
+
+### Design decisions
+
+- **Deterministic core, GenAI at the edge.** Money and dates come from pure
+  functions, so they are reproducible and testable. The LLM only writes ideas.
+- **Always works offline.** With no API key, or on any LLM failure, rule-based
+  ideas are returned and the UI says which kind it received.
+- **Data separate from logic.** Adding an event type means editing `knowledge.py`.
+- **Testable seams.** The idea function and HTTP opener are injected, so the
+  tests never touch the network.
+- **Security boundaries.** All input is validated at one entry point; static
+  files come from an explicit allow-list; the API key is read from the
+  environment and sent only in a request header.
+
 ## Run it
 
 ```bash
