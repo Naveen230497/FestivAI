@@ -20,7 +20,7 @@ MAX_IDEAS = 5
 MAX_IDEA_LEN = 160
 DEFAULT_GROQ_MODEL = 'qwen/qwen3.8-27b'
 DEFAULT_ANTHROPIC_MODEL = 'claude-sonnet-5-5'
-DEFAULT_GEMINI_MODEL = 'gemini-1.5-flash'
+DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash'
 
 SYSTEM_PROMPT = (
     'You are an event-planning assistant. Reply with ONLY a JSON array of exactly 5 '
@@ -48,6 +48,23 @@ def parse_ideas(text: str) -> list[str] | None:
 def _build_request(req: PlanRequest) -> tuple[urllib.request.Request, Callable[[dict], str | None]] | None:
     context_str = json.dumps(req.to_context())
     user_payload = f'<user_input>{context_str}</user_input>'
+
+    if gemini_key := os.getenv('GEMINI_API_KEY'):
+        model = os.getenv('LLM_MODEL', DEFAULT_GEMINI_MODEL)
+        body = json.dumps({
+            'system_instruction': {'parts': [{'text': SYSTEM_PROMPT}]},
+            'contents': [{'parts': [{'text': user_payload}]}],
+        }).encode('utf-8')
+        request = urllib.request.Request(
+            f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent',
+            data=body,
+            method='POST',
+            headers={
+                'content-type': 'application/json',
+                'x-goog-api-key': gemini_key,
+            },
+        )
+        return request, lambda p: p.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text')
 
     if anthropic_key := os.getenv('ANTHROPIC_API_KEY'):
         body = json.dumps({
@@ -89,23 +106,6 @@ def _build_request(req: PlanRequest) -> tuple[urllib.request.Request, Callable[[
             },
         )
         return request, lambda p: p.get('choices', [{}])[0].get('message', {}).get('content')
-
-    if gemini_key := os.getenv('GEMINI_API_KEY'):
-        model = os.getenv('LLM_MODEL', DEFAULT_GEMINI_MODEL)
-        body = json.dumps({
-            'system_instruction': {'parts': [{'text': SYSTEM_PROMPT}]},
-            'contents': [{'parts': [{'text': user_payload}]}],
-        }).encode('utf-8')
-        request = urllib.request.Request(
-            f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent',
-            data=body,
-            method='POST',
-            headers={
-                'content-type': 'application/json',
-                'x-goog-api-key': gemini_key,
-            },
-        )
-        return request, lambda p: p.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text')
 
     return None
 
