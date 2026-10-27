@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 import logging
 import os
-from functools import lru_cache
+from functools import cache
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -52,7 +52,7 @@ SECURITY_HEADERS = {
 }
 
 
-@lru_cache(maxsize=None)
+@cache
 def _read_static(name: str) -> bytes:
     return (STATIC_DIR / name).read_bytes()
 

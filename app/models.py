@@ -28,7 +28,7 @@ def _clean(value: object, limit: int, name: str) -> str:
 
 
 def _number(value: object, name: str) -> float:
-    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+    if isinstance(value, bool) or not isinstance(value, int | float) or not math.isfinite(value):
         raise ValidationError(f'{name} must be a number')
     return float(value)
 
