@@ -71,21 +71,81 @@ MILESTONES = {
 DEFAULT_BOOK_WEEKS = 4
 
 CHECKLISTS = {
-    'venue': ['Is the date and capacity confirmed in writing?', 'What is the cancellation policy?', 'Are decor, sound and power included?'],
-    'catering': ['Can you accommodate dietary needs?', 'Is service staff included in the quote?', 'What is the per-plate price at my headcount?'],
-    'decor': ['Can you share photos of past work?', 'Who handles setup and teardown?', 'What is the damage deposit?'],
-    'decor_signage': ['Are permits needed for banners?', 'Is weather-proofing included?', 'Who removes signage afterwards?'],
-    'photography': ['How many edited photos are delivered?', 'What is the delivery timeline?', 'Is a backup photographer available?'],
-    'attire': ['How many fittings are included?', 'What is the alteration lead time?', 'What is the return policy?'],
-    'entertainment': ['Is a sound check included?', 'What are the overtime charges?', 'Is there a backup act?'],
-    'invitations': ['Is a digital option available?', 'What is the proof-approval deadline?', 'Is delivery included?'],
-    'logistics': ['Is transport arranged for key guests?', 'Is there a vendor arrival schedule?', 'Who is the day-of contact?'],
-    'cake': ['Can the flavour suit allergies?', 'Is delivery and setup included?', 'What is the pickup window?'],
-    'equipment_av': ['Is a technician on site?', 'Is backup power available?', 'What is the setup time?'],
-    'marketing': ['Which channels reach our audience?', 'What is the registration process?', 'How will we track turnout?'],
-    'permits_safety': ['Which local permits apply?', 'Is a first-aid point planned?', 'What are the crowd and fire limits?'],
-    'volunteers': ['Are roles and shifts assigned?', 'Is there a briefing session?', 'Are meals provided for volunteers?'],
-    'return_gifts': ['What is the per-unit price?', 'Is custom packaging available?', 'What is the delivery date?'],
+    'venue': [
+        'Is the date and capacity confirmed in writing?',
+        'What is the cancellation policy?',
+        'Are decor, sound and power included?',
+    ],
+    'catering': [
+        'Can you accommodate dietary needs?',
+        'Is service staff included in the quote?',
+        'What is the per-plate price at my headcount?',
+    ],
+    'decor': [
+        'Can you share photos of past work?',
+        'Who handles setup and teardown?',
+        'What is the damage deposit?',
+    ],
+    'decor_signage': [
+        'Are permits needed for banners?',
+        'Is weather-proofing included?',
+        'Who removes signage afterwards?',
+    ],
+    'photography': [
+        'How many edited photos are delivered?',
+        'What is the delivery timeline?',
+        'Is a backup photographer available?',
+    ],
+    'attire': [
+        'How many fittings are included?',
+        'What is the alteration lead time?',
+        'What is the return policy?',
+    ],
+    'entertainment': [
+        'Is a sound check included?',
+        'What are the overtime charges?',
+        'Is there a backup act?',
+    ],
+    'invitations': [
+        'Is a digital option available?',
+        'What is the proof-approval deadline?',
+        'Is delivery included?',
+    ],
+    'logistics': [
+        'Is transport arranged for key guests?',
+        'Is there a vendor arrival schedule?',
+        'Who is the day-of contact?',
+    ],
+    'cake': [
+        'Can the flavour suit allergies?',
+        'Is delivery and setup included?',
+        'What is the pickup window?',
+    ],
+    'equipment_av': [
+        'Is a technician on site?',
+        'Is backup power available?',
+        'What is the setup time?',
+    ],
+    'marketing': [
+        'Which channels reach our audience?',
+        'What is the registration process?',
+        'How will we track turnout?',
+    ],
+    'permits_safety': [
+        'Which local permits apply?',
+        'Is a first-aid point planned?',
+        'What are the crowd and fire limits?',
+    ],
+    'volunteers': [
+        'Are roles and shifts assigned?',
+        'Is there a briefing session?',
+        'Are meals provided for volunteers?',
+    ],
+    'return_gifts': [
+        'What is the per-unit price?',
+        'Is custom packaging available?',
+        'What is the delivery date?',
+    ],
 }
 
 FALLBACK_IDEAS = {

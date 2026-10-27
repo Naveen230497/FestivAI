@@ -58,6 +58,7 @@ def _read_static(name: str) -> bytes:
 
 
 class Handler(BaseHTTPRequestHandler):
+    """HTTP request handler serving static files and API endpoints."""
     server_version = 'FestivAI'
     sys_version = ''
     limiter = RateLimiter()
@@ -75,6 +76,7 @@ class Handler(BaseHTTPRequestHandler):
         self._send(status, json.dumps(data, default=str).encode('utf-8'), 'application/json')
 
     def do_GET(self) -> None:
+        """Handle GET requests for static assets and health checks."""
         path = self.path.split('?', 1)[0]
         if path == '/health':
             return self._send_json(200, {'status': 'ok'})
@@ -84,6 +86,7 @@ class Handler(BaseHTTPRequestHandler):
         self._send(200, _read_static(entry[0]), entry[1])
 
     def do_POST(self) -> None:
+        """Handle POST requests for plan generation."""
         if self.path.split('?', 1)[0] != '/api/plan':
             return self._send_json(404, {'detail': 'Not found'})
         try:
@@ -97,6 +100,7 @@ class Handler(BaseHTTPRequestHandler):
         self._send_json(status, body)
 
     def log_message(self, fmt: str, *args) -> None:  # route access logs through logging
+        """Log HTTP request details through the application logger."""
         logging.getLogger('festivai.access').info('%s - %s', self.address_string(), fmt % args)
 
 
@@ -113,7 +117,7 @@ def _load_env() -> None:
             k, v = k.strip(), v.strip().strip('\'"')
             if k and k not in os.environ:
                 os.environ[k] = v
-    except Exception:
+    except (OSError, UnicodeDecodeError):
         pass
 
 
@@ -124,6 +128,7 @@ def make_server(host: str = '127.0.0.1', port: int = 8000) -> ThreadingHTTPServe
 
 
 def main() -> None:
+    """Start the HTTP server on configured host and port."""
     _load_env()
     logging.basicConfig(level=logging.INFO)
     host = os.getenv('HOST', '127.0.0.1')

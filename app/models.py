@@ -35,6 +35,7 @@ def _number(value: object, name: str) -> float:
 
 @dataclass(frozen=True)
 class PlanRequest:
+    """Validated parameters representing an event plan request."""
     event_type: str
     event_date: date
     guest_count: int
@@ -78,7 +79,9 @@ class PlanRequest:
         if not isinstance(raw_prefs, list) or len(raw_prefs) > MAX_PREFERENCES:
             raise ValidationError(f'preferences must be a list of at most {MAX_PREFERENCES} items')
         prefs = tuple(
-            p.lower() for p in (_clean(item, MAX_PREFERENCE_LEN, 'preference') for item in raw_prefs) if p
+            p.lower()
+            for p in (_clean(item, MAX_PREFERENCE_LEN, 'preference') for item in raw_prefs)
+            if p
         )
 
         return cls(
@@ -102,6 +105,7 @@ class PlanRequest:
 
 @dataclass
 class BudgetLine:
+    """Financial allocation share and amount for an event category."""
     category: str
     share: float
     amount: float
@@ -109,6 +113,7 @@ class BudgetLine:
 
 @dataclass
 class TimelineItem:
+    """Scheduled planning milestone with task description and deadline."""
     due: date
     task: str
     category: str
@@ -117,6 +122,7 @@ class TimelineItem:
 
 @dataclass
 class VendorItem:
+    """Vendor category booking requirements, budget ceiling, and checklist."""
     category: str
     book_by: date
     budget_cap: float
@@ -125,6 +131,7 @@ class VendorItem:
 
 @dataclass
 class Plan:
+    """Complete synthesized event plan comprising budget, schedule, and ideas."""
     summary: str
     per_head: float
     feasibility: str

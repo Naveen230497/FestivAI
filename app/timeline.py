@@ -13,10 +13,12 @@ def lead_scale(event_type: str, event_date: date, today: date) -> float:
 
 
 def due_date(event_date: date, weeks_before: int, scale: float) -> date:
+    """Calculate the due date for a milestone using lead time scaling."""
     return event_date - timedelta(days=round(weeks_before * 7 * scale))
 
 
 def build_timeline(event_type: str, event_date: date, scale: float) -> list[TimelineItem]:
+    """Build an ordered list of milestone items for the event."""
     steps = sorted(MILESTONES[event_type], key=lambda step: -step[0])
     return [
         TimelineItem(due_date(event_date, weeks, scale), task, category, scale < 1.0)
@@ -33,5 +35,6 @@ def book_weeks(event_type: str) -> dict[str, int]:
 
 
 def book_by(event_type: str, category: str, event_date: date, scale: float) -> date:
+    """Calculate the recommended booking deadline date for a vendor category."""
     weeks = book_weeks(event_type).get(category, DEFAULT_BOOK_WEEKS)
     return due_date(event_date, weeks, scale)

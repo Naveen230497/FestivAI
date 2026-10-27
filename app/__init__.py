@@ -1,0 +1,1 @@
+"""FestivAI core application package."""

@@ -5,7 +5,11 @@ from .models import BudgetLine
 MIN_SHARE = 0.01
 
 
-def allocate(event_type: str, total: float, preferences: tuple[str, ...] | list[str]) -> list[BudgetLine]:
+def allocate(
+    event_type: str,
+    total: float,
+    preferences: tuple[str, ...] | list[str],
+) -> list[BudgetLine]:
     """Split `total` across categories; preferences shift shares, then re-normalise."""
     shares = dict(BUDGET_SPLIT[event_type])
     for pref in preferences:

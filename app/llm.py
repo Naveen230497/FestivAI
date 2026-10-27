@@ -5,6 +5,7 @@ Every failure path returns None so callers fall back to rule-based ideas.
 """
 from __future__ import annotations
 
+import http.client
 import json
 import logging
 import os
@@ -45,7 +46,9 @@ def parse_ideas(text: str) -> list[str] | None:
     return ideas[:MAX_IDEAS] or None
 
 
-def _build_request(req: PlanRequest) -> tuple[urllib.request.Request, Callable[[dict], str | None]] | None:
+def _build_request(
+    req: PlanRequest,
+) -> tuple[urllib.request.Request, Callable[[dict], str | None]] | None:
     context_str = json.dumps(req.to_context())
     user_payload = f'<user_input>{context_str}</user_input>'
 
@@ -64,7 +67,13 @@ def _build_request(req: PlanRequest) -> tuple[urllib.request.Request, Callable[[
                 'x-goog-api-key': gemini_key,
             },
         )
-        return request, lambda p: p.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text')
+
+        def extract_gemini(p: dict) -> str | None:
+            candidates = p.get('candidates', [{}])
+            parts = candidates[0].get('content', {}).get('parts', [{}]) if candidates else [{}]
+            return parts[0].get('text') if parts else None
+
+        return request, extract_gemini
 
     if anthropic_key := os.getenv('ANTHROPIC_API_KEY'):
         body = json.dumps({
@@ -121,6 +130,13 @@ def suggest_ideas(req: PlanRequest, opener: Callable = urllib.request.urlopen) -
             payload = json.load(response)
         text = extractor(payload)
         return parse_ideas(text) if text else None
-    except Exception:  # any failure degrades gracefully to rule-based ideas
+    except (
+        OSError,
+        ValueError,
+        KeyError,
+        IndexError,
+        TypeError,
+        http.client.HTTPException,
+    ):
         log.warning('LLM ideas unavailable, using fallback')
         return None

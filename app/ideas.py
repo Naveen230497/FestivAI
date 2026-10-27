@@ -10,11 +10,14 @@ MAX_FALLBACK_IDEAS = 6
 
 
 def fallback_ideas(req: PlanRequest) -> list[str]:
+    """Return deterministic event ideas tailored to preferences, city, and theme."""
     theme = req.theme or 'chosen'
     base = [text.format(theme=theme) for text in FALLBACK_IDEAS[req.event_type]]
     extra = [PREFERENCE_IDEAS[p] for p in req.preferences if p in PREFERENCE_IDEAS]
     if req.city:
-        extra.append(f'Ask venues in {req.city} about seasonal availability and local licence rules.')
+        extra.append(
+            f'Ask venues in {req.city} about seasonal availability and local licence rules.'
+        )
     return (extra + base)[:MAX_FALLBACK_IDEAS]
 
 

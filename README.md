@@ -110,8 +110,21 @@ python -m app.server
 # 2. Open in your browser:
 # http://127.0.0.1:8000
 
-# 3. Run the comprehensive test suite (46 offline unit and security tests):
+# 3. Run the comprehensive test suite (offline unit and security tests):
 python -m unittest -v
+```
+
+## Development
+
+```bash
+# Install development tooling:
+pip install ruff
+
+# Run unit and integration tests:
+python -m unittest -v
+
+# Run code style and quality linter:
+ruff check .
 ```
 
 ### Optional GenAI Personalisation
@@ -125,7 +138,7 @@ export GROQ_API_KEY=gsk_...
 export GEMINI_API_KEY=AIzaSy...
 
 # Anthropic Claude:
-export ANTHROPIC_API_KEY=sk-ant-...
+export ANTHROPIC_API_KEY=your_key_here
 ```
 *If no API key is set or the network is offline, the service seamlessly falls back to curated rule-based ideas.*
 

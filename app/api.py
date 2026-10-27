@@ -17,7 +17,12 @@ MAX_TRACKED_CLIENTS = 10_000
 class RateLimiter:
     """Thread-safe sliding-window limiter with bounded memory."""
 
-    def __init__(self, limit: int = 20, window: float = 60.0, clock: Callable[[], float] = time.monotonic):
+    def __init__(
+        self,
+        limit: int = 20,
+        window: float = 60.0,
+        clock: Callable[[], float] = time.monotonic,
+    ) -> None:
         self.limit = limit
         self.window = window
         self._clock = clock
@@ -25,6 +30,7 @@ class RateLimiter:
         self._lock = threading.Lock()
 
     def allow(self, client: str) -> bool:
+        """Determine whether a client request is permitted under rate limits."""
         now = self._clock()
         with self._lock:
             hits = self._hits[client]

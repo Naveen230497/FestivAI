@@ -15,18 +15,24 @@ LARGE_WEDDING_GUESTS = 500
 def _warnings(req: PlanRequest, scale: float, rating: str, days_left: int) -> list[str]:
     notes = []
     if scale < 1.0:
-        notes.append(f'Only {days_left} days left: the timeline is compressed. Book venue and catering first.')
+        notes.append(
+            f'Only {days_left} days left: the timeline is compressed. '
+            'Book venue and catering first.'
+        )
     if rating == 'tight':
         notes.append('Budget per guest is tight: consider fewer guests or a simpler venue.')
     if req.event_type == 'community' and req.guest_count > LARGE_COMMUNITY_GUESTS:
         where = f' with the {req.city} authorities' if req.city else ''
-        notes.append(f'Large public gathering: confirm permits{where}, crowd limits and first-aid cover.')
+        notes.append(
+            f'Large public gathering: confirm permits{where}, crowd limits and first-aid cover.'
+        )
     if req.event_type == 'wedding' and req.guest_count > LARGE_WEDDING_GUESTS:
         notes.append('Very large wedding: confirm venue capacity, parking and fire-safety limits.')
     return notes
 
 
 def build_plan(req: PlanRequest, today: date | None = None, llm_fn: IdeaFn = suggest_ideas) -> Plan:
+    """Construct a comprehensive event plan from validated user requirements."""
     today = today or date.today()
     scale = lead_scale(req.event_type, req.event_date, today)
     budget = allocate(req.event_type, req.budget, req.preferences)
