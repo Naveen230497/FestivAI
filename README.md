@@ -1,5 +1,7 @@
 # FestivAI - Celebration & Event Planner
 
+**Live demo:** https://festivai-297907968720.us-central1.run.app
+
 A GenAI-powered planning assistant for **weddings, birthdays and community events**.
 Give it the event type, date, guest count, budget and preferences; it returns a
 **budget breakdown, a dated timeline, a vendor checklist with book-by dates, and
@@ -17,20 +19,23 @@ a wedding, birthday or community event who needs a realistic, actionable plan.
 | Budgets | `app/budget.py` (per-event splits, preference-aware, exact totals) |
 | Timelines | `app/timeline.py` (milestones that compress automatically on short notice) |
 | Vendor checklists | `app/planner.py` + `CHECKLISTS` in `app/knowledge.py` (book-by date, spending cap, questions to ask) |
-| Personalised ideas (GenAI) | `app/llm.py` (Multi-provider support: Groq / Gemini / Claude) with rule-based fallback in `app/ideas.py` |
+| Personalised ideas (GenAI) | `app/llm.py` (Multi-provider support: Gemini / Claude / Groq) with rule-based fallback in `app/ideas.py` |
 | Logical decisions from context | Warnings in `app/planner.py`: short notice, tight per-guest budget, large gatherings |
 
 ## Approach and logic
 
 - **Deterministic engine for money and dates.** Numbers must be reproducible and
   testable, so no LLM does arithmetic.
-- **GenAI for personalisation.** If an API key is set (`GROQ_API_KEY`, `GEMINI_API_KEY`, or `ANTHROPIC_API_KEY`), the LLM writes creative ideas tailored to the event; otherwise (or on any error) curated rule-based ideas that use the theme, city and preferences are returned. The UI states which was used.
+- **GenAI for personalisation.** If an API key is set (`GEMINI_API_KEY`, `ANTHROPIC_API_KEY`,
+  or `GROQ_API_KEY` - evaluated in that order), the LLM writes creative ideas tailored to the
+  event; otherwise (or on any error) curated rule-based ideas that use the theme, city and
+  preferences are returned. The UI states which was used.
 - **Context-aware rules.** Preferences (outdoor, live music, vegetarian, photography,
   kids) re-weight the budget. If the event is closer than the ideal lead time, every
   milestone and booking date is scaled so nothing lands in the past.
 - **Data separate from logic.** Add an event type by editing `app/knowledge.py` only.
 
-## UI Design System & Architecture
+## UI design system
 
 FestivAI features an editorial bento-grid user experience engineered in Vanilla HTML5, CSS3, and ES modules. Total static payload is **under 150 KB**, using the system font stack and a single SVG sprite (`static/icons.svg`).
 
@@ -181,27 +186,32 @@ ruff check .
 
 ### Optional GenAI Personalisation
 
-Export any of the supported API keys in your environment, or configure in a local `.env` file (never commit real keys):
+Export any of the supported API keys in your environment, or configure in a local `.env` file
+(never commit real keys):
 ```bash
-# Groq (recommended - ultra-fast free tier):
-export GROQ_API_KEY=gsk_...
-
-# Google Gemini:
+# Google Gemini (evaluated first when multiple keys are set):
 export GEMINI_API_KEY=AIzaSy...
 
-# Anthropic Claude:
+# Anthropic Claude (evaluated second):
 export ANTHROPIC_API_KEY=your_key_here
+
+# Groq (evaluated third):
+export GROQ_API_KEY=gsk_...
 ```
-*If no API key is set or the network is offline, the service seamlessly falls back to curated rule-based ideas.*
+*Provider evaluation priority: Gemini is selected first, then Anthropic Claude, then Groq.
+API keys are sent strictly in HTTP request headers (`x-goog-api-key` for Gemini, `x-api-key` for
+Claude, or `Authorization: Bearer` for Groq), never in URLs. Requests enforce a 15-second timeout.
+If no key is set or a network error occurs, the service seamlessly falls back to curated
+rule-based ideas.*
 
 ## Security
 
 Strict server-side validation (types, ranges, lengths, allow-lists, control-character
-stripping); 8 KB request size cap; per-client sliding-window rate limiting with bounded memory; explicit
-static-file allow-list (no path traversal); CSP and security headers; API key read from
-the environment only and sent only in an authorization header; user text passed to the LLM as
-delimited data with output parsed, capped and validated; UI renders with `textContent`
-(no `innerHTML`).
+stripping); 8 KB request size cap; per-client sliding-window rate limiting with bounded memory;
+explicit static-file allow-list (no path traversal); CSP and security headers; API key read from
+the environment only and sent only in a request header (`x-goog-api-key`, `x-api-key`, or
+`Authorization: Bearer`), never in a URL; user text passed to the LLM as delimited data with
+output parsed, capped and validated; UI renders with `textContent` (no `innerHTML`).
 
 ## Efficiency
 
@@ -214,48 +224,74 @@ static files, O(n) pure functions.
   price quotes; the feasibility rating applies to INR only.
 - Ideas never include prices or vendor names.
 - No user data is stored on the server (client-side plans live in browser `localStorage`).
+- When an API key is set, the event details entered in the form (type, date, guest count,
+  budget, city, theme, preferences) are sent to the selected AI provider; no account
+  identifiers are sent.
 - Dates use the server's local date.
 
 ## Project structure
 
 ```
+.dockerignore      # Files excluded from container build
+.env.example       # Example environment variables template
+.gitattributes     # Git line-ending attributes
+.github/
+  workflows/
+    ci.yml         # GitHub Actions CI workflow (Python 3.12 unittest)
+.gitignore         # Files excluded from version control
+Dockerfile         # Container definition for Google Cloud Run
+LICENSE            # MIT License
+README.md          # Project documentation and guide
+pyproject.toml     # Ruff linter configuration and Python target
 app/
-  models.py        # Strict validation & dataclasses
-  knowledge.py     # Domain splits, milestones, checklists, fallback ideas
-  budget.py        # Exact budget calculation & feasibility
-  timeline.py      # Timeline generation & lead-time compression
-  llm.py           # Standard library urllib LLM client (Groq / Gemini / Claude)
-  ideas.py         # Hybrid idea generator with rule fallback
-  planner.py       # Plan orchestration & context warnings
+  __init__.py      # Package marker
   api.py           # Rate limiting & HTTP request handling
+  budget.py        # Exact budget calculation & feasibility
+  ideas.py         # Hybrid idea generator with rule fallback
+  knowledge.py     # Domain splits, milestones, checklists, fallback ideas
+  llm.py           # Standard library urllib LLM client (Gemini / Claude / Groq)
+  models.py        # Strict validation & dataclasses
+  planner.py       # Plan orchestration & context warnings
   server.py        # Zero-dependency HTTP server & static allow-list
+  timeline.py      # Timeline generation & lead-time compression
 static/
-  index.html       # CSP-safe semantic HTML entry point
-  icons.svg        # Scalable SVG vector icon sprite
-  style.css        # Master stylesheet aggregator
   app.js           # Legacy ES entry point
+  icons.svg        # Scalable SVG vector icon sprite
+  index.html       # CSP-safe semantic HTML entry point
+  style.css        # Master stylesheet aggregator
   css/
-    tokens.css     # Design tokens, color palette, dark mode & typography
     base.css       # Landmarks, skip link, reset & print stylesheet
     components.css # Buttons, cards, bento tiles, badges, forms, tabs, dialogs
+    tokens.css     # Design tokens, color palette, dark mode & typography
     views.css      # Screen layouts for Home, Planner, Dashboard & Saved
   js/
+    api.js         # Fetch client for /api/plan
+    format.js      # Pure currency & date formatting
     main.js        # Application initialization
     router.js      # Accessible hash router with title & focus management
-    api.js         # Fetch client for /api/plan
     state.js       # Reactive state management
     storage.js     # Safe localStorage persistence
-    format.js      # Pure currency & date formatting
     validate.js    # Client-side input validation mirroring server rules
-    components/    # Modular DOM builders (icons, donut, toast, dialog, warnings)
-    views/         # Modular view renderers (home, plan, results, saved)
+    components/
+      dialog.js    # Modal dialog component
+      donut.js     # SVG donut chart component
+      icons.js     # Icon helper component
+      toast.js     # Accessible toast notification component
+      warnings.js  # Warning alert banner component
+    views/
+      home.js      # Home view renderer
+      plan.js      # Plan form view renderer
+      results.js   # Results dashboard view renderer
+      saved.js     # Saved plans view renderer
 tests/
+  __init__.py      # Test package marker
+  helpers.py       # Shared test fixtures & factory functions
+  test_api.py      # Status codes & rate limiter tests
+  test_budget.py   # Exact split sums & preference tests
+  test_llm.py      # Prompt hardening & fallback tests
   test_models.py   # Validation bounds & sanitization tests
-  budget.py        # Exact split sums & preference tests
-  timeline.py      # Lead-time compression tests
-  planner.py       # Plan assembly & warning triggers
-  llm.py           # Prompt hardening & fallback tests
-  api.py           # Status codes & rate limiter tests
-  server.py        # Server round-trip & traversal protection
+  test_planner.py  # Plan assembly & warning triggers
+  test_server.py   # Server round-trip & traversal protection
   test_static.py   # CSP compliance, no innerHTML/eval & asset availability
+  test_timeline.py # Lead-time compression tests
 ```
